@@ -61,3 +61,7 @@ tasks.register('buildProbeExecutable', Exec) {
 tasks.named('preBuild').configure {
     dependsOn tasks.named('buildProbeExecutable')
 }
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
