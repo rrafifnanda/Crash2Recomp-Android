@@ -58,8 +58,26 @@ tasks.register('buildProbeExecutable', Exec) {
     }
 }
 
+tasks.register('buildAndroidTools', Exec) {
+    commandLine new File(rootProject.projectDir, 'scripts/build-tools.sh')
+    inputs.dir new File(rootProject.projectDir, 'native-runtime')
+    inputs.dir new File(rootProject.projectDir.parentFile, 'tuning/patches')
+    inputs.files(
+            new File(rootProject.projectDir, 'scripts/build-tools.sh'),
+            new File(rootProject.projectDir, 'scripts/fetch-framework.sh'))
+    outputs.files(
+            file('src/main/jniLibs/arm64-v8a/libpsxrecomp.so'),
+            file('src/main/jniLibs/arm64-v8a/libpsxrecomp-game.so'),
+            file('src/main/jniLibs/arm64-v8a/libpsxrecomp-bios.so'),
+            file('src/main/jniLibs/arm64-v8a/libtcc-bin.so'),
+            file('src/main/jniLibs/arm64-v8a/libtcc.so'),
+            file('src/main/jniLibs/arm64-v8a/libmain.so'),
+            file('src/main/assets/runtime-toolchain/built.txt'))
+}
+
 tasks.named('preBuild').configure {
     dependsOn tasks.named('buildProbeExecutable')
+    dependsOn tasks.named('buildAndroidTools')
 }
 
 dependencies {

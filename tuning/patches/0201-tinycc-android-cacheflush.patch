@@ -1,0 +1,16 @@
+diff --git a/lib/armflush.c b/lib/armflush.c
+index 7e05b54..5afe29b 100644
+--- a/lib/armflush.c
++++ b/lib/armflush.c
+@@ -57,7 +57,11 @@ void __clear_cache(void *beginning, void *end)
+ #elif defined __aarch64__
+ void __clear_cache(void *beg, void *end)
+ {
++#ifdef __ANDROID__
++    __builtin___clear_cache(beg, end);
++#else
+     __arm64_clear_cache(beg, end);
++#endif
+ }
+ 
+ /* ------------------------------------------------------------- */

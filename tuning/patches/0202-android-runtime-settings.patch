@@ -1,0 +1,34 @@
+diff --git a/runtime/src/main.cpp b/runtime/src/main.cpp
+index c6bdb8f..8190ed3 100644
+--- a/runtime/src/main.cpp
++++ b/runtime/src/main.cpp
+@@ -13895,6 +13895,19 @@ session_reboot:
+         std::fflush(stdout);
+     }
+     memory_init(bios_path_str.c_str());
++#ifdef __ANDROID__
++    if (const char* aspect = std::getenv("PSX_ASPECT_RATIO")) {
++        if (std::strcmp(aspect, "16:9") == 0) {
++            g_video_aspect_num = 16;
++            g_video_aspect_den = 9;
++        } else if (std::strcmp(aspect, "4:3") == 0) {
++            g_video_aspect_num = 4;
++            g_video_aspect_den = 3;
++        }
++    }
++    if (const char* volume = std::getenv("PSX_VOLUME"))
++        host_volume_set(std::max(0, std::min(100, std::atoi(volume))));
++#endif
+ #ifndef PSX_HAVE_VULKAN
+     /* Vulkan was not compiled in (PSX_ENABLE_VULKAN=OFF or no SDK found).
+      * Refuse a vulkan request from ANY source (config / CLI / launcher seed)
+@@ -14357,6 +14370,9 @@ session_reboot:
+                 cfg.source_rate = 44100.0;            /* SPU render rate */
+                 cfg.host_rate   = (double)have.freq;  /* actual device rate */
+ #ifdef __ANDROID__
++                if (const char* latency = std::getenv("PSX_AUDIO_LATENCY_MS")) {
++                    cfg.target_ms = std::max(45.0, std::min(250.0, std::atof(latency)));
++                }
+                 /* Android-only, at the call site: the framework defaults are
+                  * shared with other titles and must stay as they are.
+                  *

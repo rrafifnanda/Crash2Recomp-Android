@@ -115,6 +115,7 @@ android/.gradle/
 android/app/.cxx/
 android/app/build/
 android/app/src/main/jniLibs/
+android/app/src/main/assets/runtime-toolchain/
 CMakeCache.txt
 CMakeFiles/
 *.o

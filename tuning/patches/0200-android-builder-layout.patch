@@ -1,0 +1,36 @@
+diff --git a/recompiler/src/main_cli.cpp b/recompiler/src/main_cli.cpp
+index ec14078..e8215ad 100644
+--- a/recompiler/src/main_cli.cpp
++++ b/recompiler/src/main_cli.cpp
+@@ -127,6 +127,8 @@ fs::path executable_dir(const char* argv0) {
+ fs::path find_helper(const fs::path& exe_dir, const std::string& name) {
+ #ifdef _WIN32
+     const std::string filename = name + ".exe";
++#elif defined(__ANDROID__)
++    const std::string filename = "lib" + name + ".so";
+ #else
+     const std::string filename = name;
+ #endif
+@@ -140,6 +142,11 @@ fs::path find_helper(const fs::path& exe_dir, const std::string& name) {
+ }
+ 
+ fs::path find_framework(const fs::path& exe_dir) {
++    if (const char* configured = std::getenv("PSXRECOMP_FRAMEWORK_DIR")) {
++        const fs::path path(configured);
++        if (fs::is_regular_file(path / "runtime" / "runtime.cmake"))
++            return fs::absolute(path);
++    }
+     for (const fs::path& candidate : {
+              exe_dir / "framework",
+              exe_dir.parent_path().parent_path(),
+@@ -315,6 +322,10 @@ int build_project(const Options& options, const fs::path& exe_dir) {
+     std::string seed_text = fmt::format("# Auto-generated JAL targets for {}\n", serial);
+     for (uint32_t seed : seeds) seed_text += fmt::format("0x{:08X}\n", seed);
+     write_file(options.output / "seeds" / "functions.txt", seed_text);
++    if (const char* custom_seeds = std::getenv("PSXRECOMP_GAME_SEEDS")) {
++        fs::copy_file(custom_seeds, options.output / "seeds" / "functions.txt",
++                      fs::copy_options::overwrite_existing);
++    }
+ 
+     fmt::print("[1/4] Copying build framework...\n");
+     const fs::path framework_destination = options.output / "psxrecomp";
