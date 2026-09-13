@@ -31,6 +31,26 @@ produced locally and never leaves your machine.
 No PlayStation BIOS is required. OpenBIOS, a free MIT-licensed replacement, is
 included.
 
+## Android project
+
+The `android/` directory builds a native ARM64 launcher for Android 9 or newer.
+It contains no game data. On the device, choose your own North American
+`SCUS-94154` dump (`.chd`, or `.cue` with every `.bin` track), press **Build
+game**, then **Play**. The first build needs roughly 3 GB of free space.
+
+Build the unsigned release APK on Linux:
+
+```sh
+ANDROID_HOME=/path/to/android-sdk \
+JAVA_HOME=/path/to/jdk17 \
+android/scripts/build-apk.sh
+```
+
+The result is `android/app/build/outputs/apk/release/app-release-unsigned.apk`.
+The build downloads pinned PSXRecomp and TinyCC source revisions, compiles the
+Android ARM64 tools/runtime, runs unit tests, and audits the APK for accidental
+game-derived content.
+
 ## Getting started
 
 1. Run the launcher.
