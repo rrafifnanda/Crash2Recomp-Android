@@ -15,8 +15,8 @@ set(PSXRECOMP_BIOS_STEMS OpenBIOS CACHE STRING "" FORCE)
 include("${PSXRECOMP_ROOT}/runtime/runtime.cmake")
 
 psxrecomp_add_runtime_target(psx-runtime
-    GAME_GENERATED_FULL_C "${CMAKE_CURRENT_SOURCE_DIR}/dummy_game_full.c"
-    GAME_GENERATED_DISPATCH_C "${CMAKE_CURRENT_SOURCE_DIR}/dummy_game_dispatch.c"
+    GAME_GENERATED_FULL_C "${CMAKE_CURRENT_SOURCE_DIR}/android_game_stub.c"
+    GAME_GENERATED_DISPATCH_C "${CMAKE_CURRENT_SOURCE_DIR}/android_dispatch_stub.c"
     EXTRAS_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/game_module_bridge.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/android_host_hooks.c"
