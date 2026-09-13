@@ -172,6 +172,9 @@ analysis/
 # Personal launcher artwork supplied locally; the native fallback is in code.
 /launcher/crash2launcher/ui/assets/play-reference.png
 
+# Local design and implementation notes.
+/docs/
+
 
 # --------------------------------------------------------------------------
 # 5. Python (the launcher)
