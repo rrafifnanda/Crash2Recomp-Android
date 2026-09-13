@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import os
 import sys
-from dataclasses import fields
+from dataclasses import fields, replace
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -89,11 +91,18 @@ def main() -> int:
 
     print("\n5. settings reach every build tree")
     layout = paths.detect()
-    targets = runtime._settings_targets(layout)
-    check(len(targets) >= 1, "at least one build tree targeted (%d)" % len(targets))
-    if (layout.project / "build-debugtools").is_dir():
-        check(any(t.name == "build-debugtools" for t in targets),
-              "debugtools tree included (the bug that made nothing apply)")
+    with TemporaryDirectory() as directory:
+        project = Path(directory)
+        release = project / "build-clang"
+        debug = project / "build-debugtools"
+        release.mkdir()
+        debug.mkdir()
+        fixture = replace(layout, project=project,
+                          runtime_exe=release / layout.runtime_exe.name)
+        targets = runtime._settings_targets(fixture)
+        check(targets == [release, debug],
+              "release and debugtools trees targeted (%s)" %
+              [target.name for target in targets])
 
     print("\n%s" % ("ALL CHECKS PASSED" if not failures
                     else "%d FAILURE(S)" % len(failures)))
