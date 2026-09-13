@@ -1,17 +1,21 @@
-# Crash Bandicoot 2 Recompiled
+# Crash2Recomp Android
+
+Native Android port of *Crash Bandicoot 2: Cortex Strikes Back* using
+PSXRecomp. Android is the primary target; the original Windows launcher remains
+available in this repository.
 
 > **An unofficial, non-commercial fan project.** Not affiliated with,
 > authorised or endorsed by Activision, Naughty Dog or Sony Interactive
 > Entertainment. Crash Bandicoot is a trademark of Activision Publishing, Inc.
 > **No game data is distributed here — bring your own disc.**
 
-The PlayStation game *Crash Bandicoot 2: Cortex Strikes Back* translated to
-native code and run directly, rather than emulated. A launcher takes a disc
-image you already own, builds the game on your machine, and runs it.
+The PlayStation game is translated to native code and run directly, rather than
+emulated. The Android launcher imports a disc image you already own, builds the
+ARM64 game module on your device, and runs it.
 
-> **Work in progress.** The game is completable from start to finish, but there
-> are still minor sound and graphical issues. Treat this as a preview rather
-> than a finished release, and expect rough edges.
+> **Work in progress.** The desktop runtime is completable from start to finish,
+> but the Android build is new and still needs broader device testing. Treat
+> this as a preview and expect rough edges.
 
 **This project contains no game data.** No game code, audio or disc content is
 distributed here. You supply your own disc image; everything derived from it is
@@ -23,6 +27,7 @@ produced locally and never leaves your machine.
 
 | | |
 |---|---|
+| Android | Android 9 or newer, ARM64 |
 | Windows | 64-bit, 10 or later |
 | A disc image you own | `.cue` with its `.bin` alongside, or a `.chd`. The build targets the North American release, serial `SCUS-94154`. |
 | Disk space | About 3 GB while building; roughly 100 MB once built |
@@ -30,6 +35,12 @@ produced locally and never leaves your machine.
 
 No PlayStation BIOS is required. OpenBIOS, a free MIT-licensed replacement, is
 included.
+
+## Download Android APK
+
+Download the current ARM64 build from
+[GitHub Releases](https://github.com/rrafifnanda/Crash2Recomp-Android/releases/latest).
+This is an early test build signed with an Android debug certificate.
 
 ## Android project
 
