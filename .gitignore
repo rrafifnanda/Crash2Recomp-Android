@@ -111,6 +111,10 @@ dist/
 /RELEASE_NOTES.md
 out/
 cmake-build-*/
+android/.gradle/
+android/app/.cxx/
+android/app/build/
+android/app/src/main/jniLibs/
 CMakeCache.txt
 CMakeFiles/
 *.o
