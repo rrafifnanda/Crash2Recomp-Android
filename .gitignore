@@ -162,10 +162,8 @@ psx_freeze_dump_*.json
 psx_cps_exit_trace.json
 analysis/
 
-# Screenshots and frame grabs from debugging. Launcher UI artwork and anything
-# under docs/ is real content, so keep those.
+# Screenshots and frame grabs from debugging. Keep launcher UI artwork.
 *.png
-!docs/**/*.png
 !launcher/**/assets/**/*.png
 !launcher/**/assets/**/*.ico
 !launcher/**/assets/**/*.svg
