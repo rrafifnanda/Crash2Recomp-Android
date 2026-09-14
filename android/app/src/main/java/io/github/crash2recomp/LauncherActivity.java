@@ -53,6 +53,8 @@ public final class LauncherActivity extends Activity {
     private String currentPage = "Setup";
     private boolean buildRunning;
     private boolean buildSuccess;
+    private boolean deleteArmed;
+    private long deleteArmedAt;
     private String buildMessage = "Import your disc, then build the game.";
 
     @Override
@@ -161,6 +163,19 @@ public final class LauncherActivity extends Activity {
         Button playGame = action("Play", view -> startActivity(new Intent(this, Crash2SDLActivity.class)));
         playGame.setEnabled(ready && !buildRunning);
         content.addView(playGame);
+        Button delete = action(deleteArmed ? "Tap again to confirm deletion" : "Delete built game…", view -> {
+            long now = System.currentTimeMillis();
+            if (deleteArmed && now - deleteArmedAt < 15000) {
+                deleteArmed = false;
+                deleteBuild();
+            } else {
+                deleteArmed = true;
+                deleteArmedAt = now;
+                showPage("Play");
+            }
+        });
+        delete.setEnabled(!buildRunning && hasBuildFiles());
+        content.addView(delete);
         return scroll(content);
     }
 
@@ -168,7 +183,7 @@ public final class LauncherActivity extends Activity {
         LinearLayout content = column();
         content.addView(heading("Settings"));
         content.addView(body("Settings apply the next time the game starts."));
-        content.addView(cycleSetting("Resolution", "scale", new String[] {"1", "2", "3", "4"}, "2", "×"));
+        content.addView(cycleSetting("Resolution", "scale", new String[] {"1", "2", "3", "4"}, "1", "×"));
         content.addView(cycleSetting("Aspect", "aspect", new String[] {"4:3", "16:9"}, "4:3", ""));
         content.addView(cycleSetting("Volume", "volume",
                 new String[] {"0", "25", "50", "75", "100"}, "100", "%"));
@@ -296,6 +311,54 @@ public final class LauncherActivity extends Activity {
 
     private void cancelBuild() {
         startService(new Intent(this, BuildService.class).setAction(BuildService.ACTION_CANCEL));
+    }
+
+    private boolean hasBuildFiles() {
+        File external = getExternalFilesDir(null);
+        if (external != null && new File(external, "build").exists()) return true;
+        if (new File(getFilesDir(), "build").exists()) return true;
+        return preferences.contains("built_disc_sha256");
+    }
+
+    private void deleteBuild() {
+        buildMessage = "Deleting the built game…";
+        showPage("Play");
+        worker.execute(() -> {
+            try {
+                long freed = 0;
+                File external = getExternalFilesDir(null);
+                // Only the derived build trees go away. The imported disc,
+                // memory cards, settings and staged toolchain are kept, so a
+                // rebuild needs no re-import and no toolchain re-unpack.
+                if (external != null) freed += deleteTree(new File(external, "build"));
+                freed += deleteTree(new File(getFilesDir(), "build"));
+                preferences.edit().remove("built_disc_sha256").apply();
+                buildSuccess = false;
+                buildMessage = "Built game deleted (" + formatBytes(freed) + " freed)."
+                        + " Disc, saves and settings were kept.";
+            } catch (Exception error) {
+                buildMessage = "Delete failed: " + error.getMessage();
+            }
+            runOnUiThread(() -> showPage("Play"));
+        });
+    }
+
+    private static long deleteTree(File root) {
+        long freed = 0;
+        File[] children = root.listFiles();
+        if (children != null) {
+            for (File child : children) freed += deleteTree(child);
+        }
+        if (root.isFile()) freed += root.length();
+        if (root.exists() && !root.delete()) freed -= root.isFile() ? root.length() : 0;
+        return Math.max(0, freed);
+    }
+
+    private static String formatBytes(long bytes) {
+        if (bytes >= 1024 * 1024 * 1024) return String.format("%.1f GB", bytes / 1073741824.0);
+        if (bytes >= 1024 * 1024) return String.format("%.0f MB", bytes / 1048576.0);
+        if (bytes >= 1024) return String.format("%.0f KB", bytes / 1024.0);
+        return bytes + " B";
     }
 
     private boolean isReady() {

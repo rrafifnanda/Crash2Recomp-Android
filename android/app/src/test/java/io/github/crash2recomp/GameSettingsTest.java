@@ -13,7 +13,7 @@ public final class GameSettingsTest {
     public void emptySettingsUseSafeAndroidDefaults() {
         GameSettings settings = GameSettings.from(new HashMap<>());
 
-        assertEquals(2, settings.scale);
+        assertEquals(1, settings.scale);
         assertEquals("4:3", settings.aspect);
         assertEquals(100, settings.volume);
         assertEquals(90, settings.audioLatencyMs);

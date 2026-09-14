@@ -21,7 +21,7 @@ final class GameSettings {
 
     static GameSettings from(Map<String, String> values) {
         return new GameSettings(
-                clamp(number(values.get("scale"), 2), 1, 4),
+                clamp(number(values.get("scale"), 1), 1, 4),
                 "16:9".equals(values.get("aspect")) ? "16:9" : "4:3",
                 clamp(number(values.get("volume"), 100), 0, 100),
                 clamp(number(values.get("audio_latency_ms"), 90), 45, 250),

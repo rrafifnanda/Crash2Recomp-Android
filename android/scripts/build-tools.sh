@@ -79,11 +79,22 @@ cp "$RUNTIME_BUILD/libmain.so" "$JNI/libmain.so"
 
 rm -rf "$ASSETS"
 mkdir -p "$ASSETS/framework" "$ASSETS/tcc" "$ASSETS/sysroot"
-for dir in bios cmake lib mods recompiler/lib runtime third_party; do
+for dir in bios cmake lib mods recompiler/lib recompiler/seeds runtime third_party; do
     destination="$ASSETS/framework/$(dirname "$dir")"
     mkdir -p "$destination"
     [ ! -e "$FRAMEWORK/$dir" ] || cp -RL "$FRAMEWORK/$dir" "$destination/"
 done
+# Anchor for find_project_root(): the desktop framework tree anchors at its
+# root via .gitignore, but aapt strips dotfiles from APK assets, so that file
+# never reaches the device. A CMakeLists.txt marker works instead: the config
+# loader treats it as a project-root marker, so BIOS seed/rom paths resolve
+# under psxrecomp/. Without an anchor the on-device lookup falls through to
+# the generated project dir and the BIOS step fails with "cannot open seed
+# file". This file is a marker only and carries no build rules.
+printf '%s\n' \
+    '# Marker only, not part of the build. See build-tools.sh.' \
+    '# find_project_root() anchors BIOS seed/rom paths at this directory.' \
+    > "$ASSETS/framework/CMakeLists.txt"
 mkdir -p "$ASSETS/licenses"
 cp "$FRAMEWORK/LICENSE" "$ASSETS/licenses/PSXRecomp-LICENSE.txt"
 cp "$FRAMEWORK/THIRD_PARTY_ATTRIBUTION.md" "$ASSETS/licenses/PSXRecomp-THIRD-PARTY.md"

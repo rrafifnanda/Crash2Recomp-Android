@@ -34,6 +34,10 @@ public final class Crash2SDLActivity extends SDLActivity {
 
         setEnvironment("PSX_GAME_MODULE", module.getPath());
         setEnvironment("PSX_EXTERNAL_FILES", external.getPath());
+        // One [FPS] line every few seconds to stderr (visible in logcat).
+        // Negligible cost; the only objective performance signal on-device.
+        setEnvironment("PSX_FPS_TELEMETRY", "1");
+        stageBundledBios(external);
         for (Map.Entry<String, String> value : settings().runtimeValues().entrySet()) {
             setEnvironment(value.getKey(), value.getValue());
         }
@@ -60,6 +64,37 @@ public final class Crash2SDLActivity extends SDLActivity {
                 "--no-launcher", "--game", new File(project, "game.toml").getPath(),
                 "--renderer", "opengl", "--disc", disc,
                 "--memcard-dir", saves.getPath()};
+    }
+
+    private void stageBundledBios(File external) {
+        try {
+            File source = new File(new File(new File(getFilesDir(), "toolchain"),
+                    "framework"), "bios/openbios.bin");
+            if (!source.isFile()) return;
+            File destination = new File(external, "bios/openbios.bin");
+            File parent = destination.getParentFile();
+            if (!parent.isDirectory() && !parent.mkdirs()) return;
+            if (destination.isFile() && destination.length() == source.length()) return;
+            File temporary = new File(parent, "openbios.bin.tmp");
+            java.io.InputStream input = null;
+            java.io.OutputStream output = null;
+            try {
+                input = new java.io.FileInputStream(source);
+                output = new java.io.FileOutputStream(temporary);
+                byte[] buffer = new byte[1024 * 1024];
+                int count;
+                while ((count = input.read(buffer)) >= 0) output.write(buffer, 0, count);
+            } finally {
+                if (input != null) try { input.close(); } catch (java.io.IOException ignored) {}
+                if (output != null) try { output.close(); } catch (java.io.IOException ignored) {}
+            }
+            if (!temporary.renameTo(destination)) {
+                destination.delete();
+                temporary.renameTo(destination);
+            }
+        } catch (Exception ignored) {
+            // The runtime prints its own Bundled BIOS Missing diagnostic.
+        }
     }
 
     private GameSettings settings() {
